@@ -33,5 +33,4 @@ I think should read each command holder and setup processes for correct behavior
 - for pipes, open an nth file descriptor for each pipe it creates - should be able to whack this in a for loop
 - redirection through dup2s / special pipes - idk how these work
 fork each process to run & manage the child's fds 
-
-
+- actually for number of bookean flags (pipes, redirects, etc)
