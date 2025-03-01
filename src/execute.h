@@ -11,7 +11,16 @@
 #include <unistd.h>
 
 #include "command.h"
+#include "deque.h"
 
+IMPLEMENT_DEQUE_STRUCT(pidq, pid_t);
+
+struct Job;
+typedef struct Job {
+  int id;
+  pidq pid_queue;
+  const char *cmdstring;
+} Job;
 /**
  * @brief Function to get environment variable values
  *
@@ -19,7 +28,7 @@
  *
  * @return String containing the value of the environment variable env_var
  */
-const char* lookup_env(const char* env_var);
+const char *lookup_env(const char *env_var);
 
 /**
  * @brief Function to set and define environment variable values
@@ -28,7 +37,7 @@ const char* lookup_env(const char* env_var);
  *
  * @param val String with the value to set the environment variable env_var
  */
-void write_env(const char* env_var, const char* val);
+void write_env(const char *env_var, const char *val);
 
 /**
  * @brief Get the real current working directory
@@ -41,7 +50,7 @@ void write_env(const char* env_var, const char* val);
  *
  * @return A string representing the current working directory
  */
-char* get_current_directory(bool* should_free);
+char *get_current_directory(bool *should_free);
 
 /**
  * @brief Check on background jobs to see if they have exited
@@ -61,7 +70,7 @@ void check_jobs_bg_status();
  * @param cmd String holding an approximation of what the user typed in for the
  * command.
  */
-void print_job(int job_id, pid_t pid, const char* cmd);
+void print_job(int job_id, pid_t pid, const char *cmd);
 
 /**
  * @brief Print the start up of a background job to standard out
@@ -75,7 +84,7 @@ void print_job(int job_id, pid_t pid, const char* cmd);
  * @param cmd String holding an aproximation of what the user typed in for the
  * command.
  */
-void print_job_bg_start(int job_id, pid_t pid, const char* cmd);
+void print_job_bg_start(int job_id, pid_t pid, const char *cmd);
 
 /**
  * @brief Print the completion of a background job to standard out
@@ -89,7 +98,7 @@ void print_job_bg_start(int job_id, pid_t pid, const char* cmd);
  * @param cmd String holding an aproximation of what the user typed in for the
  * command.
  */
-void print_job_bg_complete(int job_id, pid_t pid, const char* cmd);
+void print_job_bg_complete(int job_id, pid_t pid, const char *cmd);
 
 /**
  * @brief Run a generic (non-builtin) command
@@ -160,6 +169,6 @@ void run_jobs();
  *
  * @sa Command
  */
-void run_script(CommandHolder* holders);
+void run_script(CommandHolder *holders);
 
 #endif

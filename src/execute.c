@@ -7,12 +7,14 @@
  * @note As you add things to this file you may want to change the method
  * signature
  */
+#include <sys/wait.h>
 
 #include "execute.h"
 
 #include <stdio.h>
 #include <unistd.h>
 
+#include "deque.h"
 #include "quash.h"
 
 // Remove this and all expansion calls to it
@@ -23,6 +25,8 @@
   fprintf(stderr, "IMPLEMENT ME: %s(line %d): %s()\n", __FILE__, __LINE__,     \
           __FUNCTION__)
 
+PROTOTYPE_DEQUE(pidq, pid_t);
+IMPLEMENT_DEQUE(pidq, pid_t);
 /***************************************************************************
  * Interface Functions
  ***************************************************************************/
@@ -31,7 +35,6 @@
 char *get_current_directory(bool *should_free) {
   // TODO: Get the current working directory. This will fix the prompt path.
   // HINT: This should be pretty simple
-
   char *cwd = malloc(3000);
   if (cwd == NULL) {
     perror("malloc");
@@ -295,7 +298,7 @@ void parent_run_command(Command cmd) {
  *
  * @sa Command CommandHolder
  */
-void create_process(CommandHolder holder) {
+pid_t create_process(CommandHolder holder) {
   // Read the flags field from the parser
   bool p_in = holder.flags & PIPE_IN;
   bool p_out = holder.flags & PIPE_OUT;
@@ -316,43 +319,7 @@ void create_process(CommandHolder holder) {
 
     child_run_command(holder.cmd);
   }
-  parent_run_command(holder.cmd);
-
-  // TODO: Setup pipes, redirects, and new process
-
-  // parent_run_command(holder.cmd); // This should be done in the parent branch
-  // of
-  //  a fork
-  // child_run_command(holder.cmd); // This should be done in the child branch
-  // of a fork
-}
-
-pid_t test_create_process(CommandHolder holder) {
-  // Read the flags field from the parser
-  bool p_in = holder.flags & PIPE_IN;
-  bool p_out = holder.flags & PIPE_OUT;
-  bool r_in = holder.flags & REDIRECT_IN;
-  bool r_out = holder.flags & REDIRECT_OUT;
-  bool r_app = holder.flags & REDIRECT_APPEND; // This can only be true if r_out
-                                               // is true
-
-  // TODO: Remove warning silencers
-  (void)p_in;  // Silence unused variable warning
-  (void)p_out; // Silence unused variable warning
-  (void)r_in;  // Silence unused variable warning
-  (void)r_out; // Silence unused variable warning
-  (void)r_app; // Silence unused variable warning
-
-  pid_t new_pid = fork();
-  if (new_pid == 0) {
-    child_run_command(holder.cmd);
-    exit(0);
-  }
-  if (new_pid > 0) {
-    // parent_run_command(holder.cmd);  this should only handle background / waiting jops
-  } else {
-    perror("fork failed");
-  }
+  // parent_run_command(holder.cmd);
 
   // TODO: Setup pipes, redirects, and new process
 
@@ -365,6 +332,9 @@ pid_t test_create_process(CommandHolder holder) {
 }
 // Run a list of commands
 void run_script(CommandHolder *holders) {
+  int status;
+  Job job;
+  job.pid_queue = new_pidq(8000);
   if (holders == NULL)
     return;
 
@@ -381,12 +351,17 @@ void run_script(CommandHolder *holders) {
   // Run all commands in the `holder` array
   for (int i = 0; (type = get_command_holder_type(holders[i])) != EOC; ++i) {
 
-    pid = test_create_process(holders[i]);
+    pid = create_process(holders[i]);
+    job.cmdstring = "nothing";
+    push_back_pidq(&job.pid_queue, pid);
   }
   if (!(holders[0].flags & BACKGROUND)) {
     // Not a background Job
     // TODO: Wait for all processes under the job to complete
-    waitpid(pid);
+    while (!is_empty_pidq(&job.pid_queue)) {
+      waitpid(peek_front_pidq(&job.pid_queue), NULL, 0);
+      pop_front_pidq(&job.pid_queue);
+    }
   } else {
     // A background job.
     // TODO: Push the new job to the job queue

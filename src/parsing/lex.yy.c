@@ -1,6 +1,6 @@
-#line 2 "src/parsing/lex.yy.c"
+#line 1 "src/parsing/lex.yy.c"
 
-#line 4 "src/parsing/lex.yy.c"
+#line 3 "src/parsing/lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -529,12 +529,12 @@ char *yytext;
 #include "memory_pool.h"
 #include "parse.tab.h"
 #include "parsing_interface.h"
-#line 533 "src/parsing/lex.yy.c"
+#line 532 "src/parsing/lex.yy.c"
 #define YY_NO_INPUT 1
 #line 16 "src/parsing/parse.l"
  /*string        ([a-zA-Z0-9\+\-\!@%\^\"\*.\{\}\[\]\(\)?\.,_~`/:;$]|\\(.|\n)|'(\\(.|\n)|[^\\'])*')+
  sim_str       [a-zA-Z0-9\+\-\!@%\^\"\*.\{\}\[\]\(\)?\.,_~`/:;]+*/
-#line 538 "src/parsing/lex.yy.c"
+#line 537 "src/parsing/lex.yy.c"
 
 #define INITIAL 0
 
@@ -752,7 +752,7 @@ YY_DECL
 #line 25 "src/parsing/parse.l"
 
 
-#line 756 "src/parsing/lex.yy.c"
+#line 755 "src/parsing/lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -935,7 +935,7 @@ YY_RULE_SETUP
 #line 52 "src/parsing/parse.l"
 ECHO;
 	YY_BREAK
-#line 939 "src/parsing/lex.yy.c"
+#line 938 "src/parsing/lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
