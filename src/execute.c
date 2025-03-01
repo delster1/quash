@@ -327,12 +327,46 @@ void create_process(CommandHolder holder) {
   // of a fork
 }
 
+pid_t test_create_process(CommandHolder holder) {
+  // Read the flags field from the parser
+  bool p_in = holder.flags & PIPE_IN;
+  bool p_out = holder.flags & PIPE_OUT;
+  bool r_in = holder.flags & REDIRECT_IN;
+  bool r_out = holder.flags & REDIRECT_OUT;
+  bool r_app = holder.flags & REDIRECT_APPEND; // This can only be true if r_out
+                                               // is true
+
+  // TODO: Remove warning silencers
+  (void)p_in;  // Silence unused variable warning
+  (void)p_out; // Silence unused variable warning
+  (void)r_in;  // Silence unused variable warning
+  (void)r_out; // Silence unused variable warning
+  (void)r_app; // Silence unused variable warning
+
+  pid_t new_pid = fork();
+  if (new_pid == 0) {
+    child_run_command(holder.cmd);
+    exit(0);
+  }
+  if (new_pid > 0) {
+    // parent_run_command(holder.cmd);  this should only handle background / waiting jops
+  } else {
+    perror("fork failed");
+  }
+
+  // TODO: Setup pipes, redirects, and new process
+
+  // parent_run_command(holder.cmd); // This should be done in the parent branch
+  // of
+  //  a fork
+  // child_run_command(holder.cmd); // This should be done in the child branch
+  // of a fork
+  return new_pid;
+}
 // Run a list of commands
 void run_script(CommandHolder *holders) {
   if (holders == NULL)
     return;
-
-  printf("RUNNING\n");
 
   check_jobs_bg_status();
 
@@ -343,15 +377,16 @@ void run_script(CommandHolder *holders) {
   }
 
   CommandType type;
-
+  pid_t pid;
   // Run all commands in the `holder` array
-  for (int i = 0; (type = get_command_holder_type(holders[i])) != EOC; ++i)
-    create_process(holders[i]);
+  for (int i = 0; (type = get_command_holder_type(holders[i])) != EOC; ++i) {
 
+    pid = test_create_process(holders[i]);
+  }
   if (!(holders[0].flags & BACKGROUND)) {
     // Not a background Job
     // TODO: Wait for all processes under the job to complete
-    waitpid(0);
+    waitpid(pid);
   } else {
     // A background job.
     // TODO: Push the new job to the job queue
