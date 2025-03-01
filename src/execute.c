@@ -271,8 +271,6 @@ void parent_run_command(Command cmd) {
   case GENERIC:
   case ECHO:
   case PWD:
-    run_pwd();
-    break;
   case JOBS:
   case EXIT:
   case EOC:
